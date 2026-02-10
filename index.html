@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fashion Mogul: Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Fashion Mogul: Compact</title>
     <style>
         :root {
             --bg: #0f172a;
             --card: #1e293b;
             --text: #f8fafc;
-            --accent: #8b5cf6; /* Purple */
+            --accent: #8b5cf6;
             --green: #22c55e;
             --red: #ef4444;
             --gold: #fbbf24;
@@ -22,124 +22,128 @@
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 10px;
-            height: 100vh;
+            /* CRITICAL FIX: dvh adjusts to browser bars */
+            height: 100dvh; 
+            width: 100vw;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* NO SCROLLING */
+            padding: 10px;
+            overflow: hidden;
         }
 
-        /* --- 1. TOP HEADER (CASH) --- */
+        /* --- 1. COMPACT HEADER --- */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: var(--card);
-            padding: 10px 15px;
+            padding: 8px 15px;
             border-radius: 12px;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            flex-shrink: 0;
+            margin-bottom: 8px;
+            flex-shrink: 0; /* Never shrink */
+            border: 1px solid #334155;
         }
-        .cash-box { font-size: 1.8rem; font-weight: 900; color: var(--green); text-shadow: 0 0 10px rgba(34, 197, 94, 0.3); }
-        .info-box { text-align: right; font-size: 0.8rem; color: #94a3b8; }
+        .cash-box { font-size: 1.4rem; font-weight: 900; color: var(--green); }
+        .info-box { text-align: right; font-size: 0.75rem; color: #94a3b8; }
         .expense-text { color: var(--red); font-weight: bold; }
 
-        /* --- 2. SUPPLY CHAIN (VISUAL) --- */
+        /* --- 2. COMPACT SUPPLY CHAIN --- */
         .chain-container {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             align-items: center;
             background: var(--card);
-            padding: 15px;
+            padding: 8px;
             border-radius: 12px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             flex-shrink: 0;
         }
-        .chain-node { text-align: center; width: 30%; }
-        .chain-icon { font-size: 2rem; display: block; margin-bottom: 5px; }
-        .chain-count { font-size: 1.2rem; font-weight: bold; }
-        .chain-label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; }
-        .arrow { font-size: 1.5rem; color: #475569; }
+        .chain-node { text-align: center; }
+        .chain-icon { font-size: 1.5rem; display: block; line-height: 1.2; }
+        .chain-count { font-size: 1.1rem; font-weight: bold; }
+        .chain-label { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; }
+        .arrow { font-size: 1.2rem; color: #475569; }
 
-        /* --- 3. MAIN ACTION BUTTON --- */
+        /* --- 3. COMPACT SEW BUTTON --- */
         .sew-btn {
             background: linear-gradient(135deg, #6366f1, #8b5cf6);
             color: white;
             border: none;
             width: 100%;
-            padding: 20px;
+            padding: 15px; /* Reduced height */
             border-radius: 12px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             flex-shrink: 0;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
         }
-        .sew-btn:active { transform: scale(0.98); box-shadow: 0 2px 5px rgba(139, 92, 246, 0.4); }
-        
-        /* Progress Bar inside button */
+        .sew-btn:active { transform: scale(0.98); }
         .btn-progress {
-            position: absolute; bottom: 0; left: 0; height: 5px; 
-            background: rgba(255,255,255,0.5); width: 0%; transition: width 0s;
+            position: absolute; bottom: 0; left: 0; height: 4px; 
+            background: rgba(255,255,255,0.6); width: 0%;
         }
 
-        /* --- 4. CONTROLS GRID --- */
+        /* --- 4. FLEXIBLE GRID (Fills space) --- */
         .grid-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            flex-grow: 1; /* Fills remaining space */
-            min-height: 0; /* Prevents overflow */
+            gap: 8px;
+            flex: 1; /* Takes all remaining height */
+            min-height: 0; /* Allows shrinking */
+            margin-bottom: 8px;
         }
 
         .panel {
             background: var(--card);
             border-radius: 10px;
-            padding: 10px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
-        .panel-title { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
+        .panel-title { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: bold; }
         
-        /* Tiny Buttons for hiring/pricing */
-        .mini-btn-row { display: flex; gap: 5px; margin-top: 5px; }
+        .stat-display { font-size: 1rem; font-weight: bold; display: flex; justify-content: space-between; margin: 2px 0; }
+        .sub-text { font-size: 0.7rem; color: #64748b; }
+
+        .mini-btn-row { display: flex; gap: 5px; margin-top: auto; }
         .mini-btn {
-            flex: 1; border: none; padding: 8px 0; border-radius: 6px;
+            flex: 1; border: none; padding: 10px 0; border-radius: 6px;
             font-weight: bold; font-size: 0.9rem; cursor: pointer; color: white;
         }
-        .btn-green { background: #15803d; }
-        .btn-red { background: #b91c1c; }
+        .btn-green { background: #166534; } /* Darker for contrast */
+        .btn-red { background: #991b1b; }
         .btn-blue { background: #1e40af; }
-        
-        .stat-display { font-size: 1.1rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* --- 5. BOTTOM STATUS BARS --- */
+
+        /* --- 5. COMPACT FOOTER --- */
         .status-footer {
-            margin-top: 10px;
             background: var(--card);
-            padding: 10px;
+            padding: 8px 12px;
             border-radius: 12px;
             flex-shrink: 0;
         }
-        
-        .bar-row { display: flex; align-items: center; margin-bottom: 5px; font-size: 0.75rem; }
-        .bar-label { width: 60px; color: #94a3b8; }
-        .bar-track { flex: 1; height: 6px; background: #334155; border-radius: 3px; overflow: hidden; }
+        .bar-row { display: flex; align-items: center; margin-bottom: 4px; font-size: 0.7rem; }
+        .bar-label { width: 50px; color: #94a3b8; }
+        .bar-track { flex: 1; height: 5px; background: #334155; border-radius: 3px; overflow: hidden; }
         .bar-fill { height: 100%; width: 50%; transition: width 0.3s; }
+        
+        #ticker {
+            text-align: center; font-size: 0.7rem; color: #64748b; margin-top: 2px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
 
         /* --- TOAST --- */
         #toast {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9); color: var(--gold); padding: 15px 25px;
-            border-radius: 10px; font-weight: bold; text-align: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 100;
-            border: 1px solid var(--gold);
+            background: rgba(0,0,0,0.95); color: var(--gold); padding: 15px 30px;
+            border-radius: 50px; font-weight: bold; font-size: 1.2rem;
+            opacity: 0; pointer-events: none; z-index: 100;
+            border: 2px solid var(--gold); box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
     </style>
 </head>
@@ -149,11 +153,11 @@
 
     <div class="header">
         <div>
-            <div style="font-size: 0.7rem; color:#64748b;">CASH</div>
+            <div style="font-size: 0.65rem; color:#94a3b8; letter-spacing: 1px;">CASH ON HAND</div>
             <div class="cash-box" id="cashDisplay">$100</div>
         </div>
         <div class="info-box">
-            <div id="dayDisplay">Day 1</div>
+            <div id="dayDisplay" style="font-size: 0.9rem; color: white; font-weight: bold;">Day 1</div>
             <div class="expense-text" id="billDisplay">Bill: $0</div>
         </div>
     </div>
@@ -173,7 +177,7 @@
         <div class="arrow">➔</div>
         <div class="chain-node">
             <span class="chain-icon">💰</span>
-            <div class="chain-count" style="color:var(--gold); font-size:1rem;">Sale</div>
+            <div class="chain-count" style="color:var(--gold);">Sale</div>
             <div class="chain-label">Profit</div>
         </div>
     </div>
@@ -187,14 +191,15 @@
         
         <div class="panel">
             <div class="panel-title">Supplies</div>
-            <div style="font-size: 0.8rem;">Cost: $5/unit</div>
-            <button class="mini-btn btn-blue" onclick="buyFabric()">+10 Fabric ($50)</button>
+            <div class="sub-text">Cost: $5/unit</div>
+            <button class="mini-btn btn-blue" onclick="buyFabric()">
+                +10 Fabric ($50)
+            </button>
         </div>
 
         <div class="panel">
-            <div class="panel-title">Pricing Strategy</div>
-            <div class="stat-display">
-                <span>Price:</span>
+            <div class="panel-title">Price</div>
+            <div class="stat-display" style="justify-content: center; font-size: 1.2rem;">
                 <span id="priceDisplay">$25</span>
             </div>
             <div class="mini-btn-row">
@@ -204,9 +209,9 @@
         </div>
 
         <div class="panel">
-            <div class="panel-title">Makers (Auto-Sew)</div>
+            <div class="panel-title">Makers</div>
             <div class="stat-display">
-                <span style="font-size:0.8rem; color:#94a3b8;">Staff:</span>
+                <span class="sub-text">Staff:</span>
                 <span id="prodCount">0</span>
             </div>
             <div class="mini-btn-row">
@@ -216,9 +221,9 @@
         </div>
 
         <div class="panel">
-            <div class="panel-title">Sellers (Auto-Sell)</div>
+            <div class="panel-title">Sellers</div>
             <div class="stat-display">
-                <span style="font-size:0.8rem; color:#94a3b8;">Staff:</span>
+                <span class="sub-text">Staff:</span>
                 <span id="salesCount">0</span>
             </div>
             <div class="mini-btn-row">
@@ -236,14 +241,12 @@
             </div>
         </div>
         <div class="bar-row">
-            <div class="bar-label">Bills Due</div>
+            <div class="bar-label">Bills</div>
             <div class="bar-track">
                 <div class="bar-fill" id="monthBar" style="background: var(--red);"></div>
             </div>
         </div>
-        <div style="text-align: center; font-size: 0.7rem; color: #64748b; margin-top: 5px;" id="ticker">
-            Market Status: Stable
-        </div>
+        <div id="ticker">Market Status: Stable</div>
     </div>
 
     <script>
@@ -255,9 +258,8 @@
             day: 1, demandMult: 1, isSewing: false
         };
 
-        // 1. GAME LOOP (Running constantly)
+        // LOOP
         setInterval(() => {
-            // Time Progression
             state.day += 0.05;
             if (state.day > 30) payBills();
 
@@ -268,32 +270,26 @@
                 }
             }
 
-            // Sales Logic
             attemptSale();
-            
-            // Render
             updateUI();
         }, 100);
 
-        // 2. RANDOM EVENTS
+        // EVENTS
         setInterval(() => {
             if(state.day > 3 && Math.random() > 0.8) triggerEvent();
         }, 8000);
 
-        // --- ACTIONS ---
+        // ACTIONS
         function manualSew() {
             if(state.isSewing || state.fabric <= 0) {
                 if(state.fabric <= 0) showToast("NO FABRIC!", "red");
                 return;
             }
             state.isSewing = true;
-            
-            // Animation
             const bar = document.getElementById('sewBar');
             bar.style.width = "0%";
             bar.style.transition = "width 0.4s linear";
             setTimeout(() => bar.style.width = "100%", 10);
-
             setTimeout(() => {
                 if(state.fabric > 0) { state.fabric--; state.shirts++; }
                 state.isSewing = false;
@@ -330,18 +326,14 @@
 
         function attemptSale() {
             if(state.shirts <= 0) return;
-
             let diff = state.price - 25;
             let demand = (50 - (diff * 2)) * state.demandMult;
             demand = Math.max(0, Math.min(100, demand));
-            window.currDemand = demand; // For UI
-
+            window.currDemand = demand;
             let capacity = 1 + (state.salesStaff * 5);
             let chance = (demand * capacity) / 1000;
-
             if(Math.random() < chance) {
-                state.shirts--;
-                state.cash += state.price;
+                state.shirts--; state.cash += state.price;
             }
         }
 
@@ -349,9 +341,9 @@
             let total = CONFIG.rent + (state.prodStaff * CONFIG.prodWage) + (state.salesStaff * CONFIG.salesWage);
             state.cash -= total;
             state.day = 1;
-            showToast(`BILLS PAID: -$${total}`, "red");
+            showToast(`BILLS: -$${total}`, "red");
             if(state.cash < 0) {
-                alert("BANKRUPT! Game Over.");
+                alert("BANKRUPT! Refresh to restart.");
                 location.reload();
             }
         }
@@ -364,26 +356,20 @@
             ];
             const evt = evts[Math.floor(Math.random() * evts.length)];
             state.demandMult = evt.mult;
-            document.getElementById('ticker').innerText = "Market: " + evt.msg;
+            document.getElementById('ticker').innerText = "Status: " + evt.msg;
             showToast(evt.msg, "gold");
         }
 
-        // --- UI ---
         function updateUI() {
             document.getElementById('cashDisplay').innerText = "$" + Math.floor(state.cash);
             document.getElementById('dayDisplay').innerText = "Day " + Math.floor(state.day);
-            
             document.getElementById('fabricCount').innerText = state.fabric;
             document.getElementById('shirtCount').innerText = state.shirts;
-            
             document.getElementById('priceDisplay').innerText = "$" + state.price;
             document.getElementById('prodCount').innerText = state.prodStaff;
             document.getElementById('salesCount').innerText = state.salesStaff;
-
             let totalBill = CONFIG.rent + (state.prodStaff * CONFIG.prodWage) + (state.salesStaff * CONFIG.salesWage);
             document.getElementById('billDisplay').innerText = "Exp: -$" + totalBill;
-
-            // Bars
             document.getElementById('demandBar').style.width = (window.currDemand || 50) + "%";
             document.getElementById('monthBar').style.width = ((state.day / 30) * 100) + "%";
         }
