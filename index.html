@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Fashion Mogul: Compact</title>
+    <title>Fashion Mogul: Advanced</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -13,6 +13,7 @@
             --green: #22c55e;
             --red: #ef4444;
             --gold: #fbbf24;
+            --blue: #3b82f6;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
@@ -22,7 +23,6 @@
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            /* CRITICAL FIX: dvh adjusts to browser bars */
             height: 100dvh; 
             width: 100vw;
             display: flex;
@@ -31,32 +31,21 @@
             overflow: hidden;
         }
 
-        /* --- 1. COMPACT HEADER --- */
+        /* --- HEADER --- */
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card);
-            padding: 8px 15px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            flex-shrink: 0; /* Never shrink */
-            border: 1px solid #334155;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--card); padding: 8px 15px; border-radius: 12px;
+            margin-bottom: 8px; flex-shrink: 0; border: 1px solid #334155;
         }
         .cash-box { font-size: 1.4rem; font-weight: 900; color: var(--green); }
         .info-box { text-align: right; font-size: 0.75rem; color: #94a3b8; }
         .expense-text { color: var(--red); font-weight: bold; }
 
-        /* --- 2. COMPACT SUPPLY CHAIN --- */
+        /* --- SUPPLY CHAIN --- */
         .chain-container {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            background: var(--card);
-            padding: 8px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            flex-shrink: 0;
+            display: flex; justify-content: space-around; align-items: center;
+            background: var(--card); padding: 8px; border-radius: 12px;
+            margin-bottom: 8px; flex-shrink: 0;
         }
         .chain-node { text-align: center; }
         .chain-icon { font-size: 1.5rem; display: block; line-height: 1.2; }
@@ -64,22 +53,13 @@
         .chain-label { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; }
         .arrow { font-size: 1.2rem; color: #475569; }
 
-        /* --- 3. COMPACT SEW BUTTON --- */
+        /* --- SEW BUTTON --- */
         .sew-btn {
             background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 15px; /* Reduced height */
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-            flex-shrink: 0;
-            position: relative;
-            overflow: hidden;
+            color: white; border: none; width: 100%; padding: 12px;
+            border-radius: 12px; font-size: 1.1rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+            flex-shrink: 0; position: relative; overflow: hidden;
             box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
         }
         .sew-btn:active { transform: scale(0.98); }
@@ -88,53 +68,50 @@
             background: rgba(255,255,255,0.6); width: 0%;
         }
 
-        /* --- 4. FLEXIBLE GRID (Fills space) --- */
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            flex: 1; /* Takes all remaining height */
-            min-height: 0; /* Allows shrinking */
-            margin-bottom: 8px;
+        /* --- GRID LAYOUT --- */
+        .grid-wrapper {
+            flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
         }
+        .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
         .panel {
-            background: var(--card);
-            border-radius: 10px;
-            padding: 8px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            background: var(--card); border-radius: 10px; padding: 10px;
+            display: flex; flex-direction: column; justify-content: space-between;
         }
         .panel-title { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: bold; }
+        .stat-display { font-size: 1.1rem; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 5px; margin: 2px 0; }
+        .sub-text { font-size: 0.7rem; color: #64748b; text-align: center;}
         
-        .stat-display { font-size: 1rem; font-weight: bold; display: flex; justify-content: space-between; margin: 2px 0; }
-        .sub-text { font-size: 0.7rem; color: #64748b; }
-
-        .mini-btn-row { display: flex; gap: 5px; margin-top: auto; }
+        .mini-btn-row { display: flex; gap: 5px; margin-top: 5px; }
         .mini-btn {
-            flex: 1; border: none; padding: 10px 0; border-radius: 6px;
+            flex: 1; border: none; padding: 8px 0; border-radius: 6px;
             font-weight: bold; font-size: 0.9rem; cursor: pointer; color: white;
         }
-        .btn-green { background: #166534; } /* Darker for contrast */
+        .btn-green { background: #166534; }
         .btn-red { background: #991b1b; }
         .btn-blue { background: #1e40af; }
+        .btn-gold { background: #b45309; }
 
-        /* --- 5. COMPACT FOOTER --- */
+        /* --- FOOTER --- */
         .status-footer {
-            background: var(--card);
-            padding: 8px 12px;
-            border-radius: 12px;
-            flex-shrink: 0;
+            background: var(--card); padding: 8px 12px; border-radius: 12px;
+            flex-shrink: 0; margin-top: 8px;
         }
         .bar-row { display: flex; align-items: center; margin-bottom: 4px; font-size: 0.7rem; }
-        .bar-label { width: 50px; color: #94a3b8; }
-        .bar-track { flex: 1; height: 5px; background: #334155; border-radius: 3px; overflow: hidden; }
+        .bar-label { width: 60px; color: #94a3b8; }
+        .bar-track { flex: 1; height: 6px; background: #334155; border-radius: 3px; overflow: hidden; }
         .bar-fill { height: 100%; width: 50%; transition: width 0.3s; }
         
         #ticker {
-            text-align: center; font-size: 0.7rem; color: #64748b; margin-top: 2px;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            text-align: center; font-size: 0.75rem; color: #64748b; margin-top: 4px;
+            font-weight: bold; transition: color 0.3s;
+        }
+        
+        /* BLINK ANIMATION */
+        @keyframes blinker { 50% { opacity: 0; } }
+        .blink-mode {
+            color: var(--gold) !important;
+            animation: blinker 0.5s linear 3; /* Blinks 3 times */
         }
 
         /* --- TOAST --- */
@@ -153,12 +130,12 @@
 
     <div class="header">
         <div>
-            <div style="font-size: 0.65rem; color:#94a3b8; letter-spacing: 1px;">CASH ON HAND</div>
+            <div style="font-size: 0.65rem; color:#94a3b8; letter-spacing: 1px;">CASH</div>
             <div class="cash-box" id="cashDisplay">$100</div>
         </div>
         <div class="info-box">
             <div id="dayDisplay" style="font-size: 0.9rem; color: white; font-weight: bold;">Day 1</div>
-            <div class="expense-text" id="billDisplay">Bill: $0</div>
+            <div class="expense-text" id="billDisplay">Daily Burn: -$0</div>
         </div>
     </div>
 
@@ -187,50 +164,63 @@
         <div class="btn-progress" id="sewBar"></div>
     </button>
 
-    <div class="grid-container">
+    <div class="grid-wrapper">
         
-        <div class="panel">
-            <div class="panel-title">Supplies</div>
-            <div class="sub-text">Cost: $5/unit</div>
-            <button class="mini-btn btn-blue" onclick="buyFabric()">
-                +10 Fabric ($50)
-            </button>
-        </div>
+        <div class="grid-row">
+            <div class="panel">
+                <div class="panel-title">Supplies</div>
+                <div class="stat-display" id="fabCostDisplay" style="color: var(--blue);">$5</div>
+                <div class="sub-text">Cost per unit</div>
+                <button class="mini-btn btn-blue" style="margin-top:5px;" onclick="buyFabric()">
+                    Buy 10 (<span id="buyCostDisplay">$50</span>)
+                </button>
+            </div>
 
-        <div class="panel">
-            <div class="panel-title">Price</div>
-            <div class="stat-display" style="justify-content: center; font-size: 1.2rem;">
-                <span id="priceDisplay">$25</span>
-            </div>
-            <div class="mini-btn-row">
-                <button class="mini-btn btn-red" onclick="changePrice(-1)">-</button>
-                <button class="mini-btn btn-green" onclick="changePrice(1)">+</button>
-            </div>
-        </div>
-
-        <div class="panel">
-            <div class="panel-title">Makers</div>
-            <div class="stat-display">
-                <span class="sub-text">Staff:</span>
-                <span id="prodCount">0</span>
-            </div>
-            <div class="mini-btn-row">
-                <button class="mini-btn btn-red" onclick="fire('prod')">Fire</button>
-                <button class="mini-btn btn-green" onclick="hire('prod')">Hire</button>
+            <div class="panel">
+                <div class="panel-title">Pricing</div>
+                <div class="stat-display"><span id="priceDisplay">$25</span></div>
+                <div class="sub-text" style="color: var(--green);">Margin: <span id="marginDisplay">$20</span></div>
+                <div class="mini-btn-row">
+                    <button class="mini-btn btn-red" onclick="changePrice(-1)">-</button>
+                    <button class="mini-btn btn-green" onclick="changePrice(1)">+</button>
+                </div>
             </div>
         </div>
 
-        <div class="panel">
-            <div class="panel-title">Sellers</div>
-            <div class="stat-display">
-                <span class="sub-text">Staff:</span>
-                <span id="salesCount">0</span>
+        <div class="grid-row">
+            <div class="panel">
+                <div class="panel-title">Makers</div>
+                <div class="stat-display"><span id="prodCount">0</span></div>
+                <div class="sub-text">$100 ea | <b style="color:white;">Tot: $<span id="prodTotal">0</span></b></div>
+                <div class="mini-btn-row">
+                    <button class="mini-btn btn-red" onclick="fire('prod')">Fire</button>
+                    <button class="mini-btn btn-green" onclick="hire('prod')">Hire</button>
+                </div>
             </div>
-            <div class="mini-btn-row">
-                <button class="mini-btn btn-red" onclick="fire('sales')">Fire</button>
-                <button class="mini-btn btn-green" onclick="hire('sales')">Hire</button>
+
+            <div class="panel">
+                <div class="panel-title">Sellers</div>
+                <div class="stat-display"><span id="salesCount">0</span></div>
+                <div class="sub-text">$120 ea | <b style="color:white;">Tot: $<span id="salesTotal">0</span></b></div>
+                <div class="mini-btn-row">
+                    <button class="mini-btn btn-red" onclick="fire('sales')">Fire</button>
+                    <button class="mini-btn btn-green" onclick="hire('sales')">Hire</button>
+                </div>
             </div>
         </div>
+
+        <div class="panel">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="panel-title">📢 Instagram Marketing Budget</div>
+                <div style="font-weight:bold; color:var(--gold);">$<span id="adBudget">0</span>/day</div>
+            </div>
+            <div class="sub-text" style="text-align:left; margin-bottom:5px;">Increases demand. Billed daily.</div>
+            <div class="mini-btn-row">
+                <button class="mini-btn btn-red" onclick="changeAds(-10)">-$10</button>
+                <button class="mini-btn btn-gold" onclick="changeAds(10)">+$10</button>
+            </div>
+        </div>
+
     </div>
 
     <div class="status-footer">
@@ -255,13 +245,20 @@
         let state = {
             cash: 100, fabric: 5, shirts: 0, price: 25,
             prodStaff: 0, salesStaff: 0,
+            adBudget: 0,
+            fabricCost: 5, // Dynamic
             day: 1, demandMult: 1, isSewing: false
         };
 
-        // LOOP
+        // LOOP (100ms)
         setInterval(() => {
             state.day += 0.05;
             if (state.day > 30) payBills();
+
+            // Fluctuate Fabric Cost occasionally (1% chance per tick)
+            if (Math.random() < 0.01) {
+                updateFabricCost();
+            }
 
             // Auto-Production
             if (state.prodStaff > 0 && state.fabric > 0) {
@@ -274,12 +271,18 @@
             updateUI();
         }, 100);
 
-        // EVENTS
+        // RANDOM EVENTS (8s)
         setInterval(() => {
             if(state.day > 3 && Math.random() > 0.8) triggerEvent();
         }, 8000);
 
-        // ACTIONS
+        // --- LOGIC ---
+
+        function updateFabricCost() {
+            // Random price between $5 and $15
+            state.fabricCost = Math.floor(Math.random() * 11) + 5;
+        }
+
         function manualSew() {
             if(state.isSewing || state.fabric <= 0) {
                 if(state.fabric <= 0) showToast("NO FABRIC!", "red");
@@ -287,27 +290,31 @@
             }
             state.isSewing = true;
             const bar = document.getElementById('sewBar');
-            bar.style.width = "0%";
-            bar.style.transition = "width 0.4s linear";
+            bar.style.width = "0%"; bar.style.transition = "width 0.4s linear";
             setTimeout(() => bar.style.width = "100%", 10);
             setTimeout(() => {
                 if(state.fabric > 0) { state.fabric--; state.shirts++; }
                 state.isSewing = false;
-                bar.style.transition = "none";
-                bar.style.width = "0%";
+                bar.style.transition = "none"; bar.style.width = "0%";
             }, 400);
         }
 
         function buyFabric() {
-            if(state.cash >= 50) {
-                state.cash -= 50; state.fabric += 10;
-                showToast("+10 Fabric", "blue");
-            } else showToast("Need $50!", "red");
+            let cost = state.fabricCost * 10;
+            if(state.cash >= cost) {
+                state.cash -= cost; state.fabric += 10;
+                showToast(`+10 Fabric (-$${cost})`, "blue");
+            } else showToast(`Need $${cost}!`, "red");
         }
 
         function changePrice(amount) {
             state.price += amount;
             if(state.price < 1) state.price = 1;
+        }
+
+        function changeAds(amount) {
+            state.adBudget += amount;
+            if(state.adBudget < 0) state.adBudget = 0;
         }
 
         function hire(type) {
@@ -326,19 +333,31 @@
 
         function attemptSale() {
             if(state.shirts <= 0) return;
+
             let diff = state.price - 25;
-            let demand = (50 - (diff * 2)) * state.demandMult;
-            demand = Math.max(0, Math.min(100, demand));
-            window.currDemand = demand;
+            let baseDemand = 50 - (diff * 2);
+            
+            // Marketing Effect: Each $10 budget adds ~5% demand
+            let marketingBoost = (state.adBudget / 10) * 5; 
+            
+            let finalDemand = (baseDemand + marketingBoost) * state.demandMult;
+            finalDemand = Math.max(0, Math.min(100, finalDemand));
+            
+            window.currDemand = finalDemand; // For UI
+
             let capacity = 1 + (state.salesStaff * 5);
-            let chance = (demand * capacity) / 1000;
+            let chance = (finalDemand * capacity) / 1000;
+
             if(Math.random() < chance) {
                 state.shirts--; state.cash += state.price;
             }
         }
 
         function payBills() {
-            let total = CONFIG.rent + (state.prodStaff * CONFIG.prodWage) + (state.salesStaff * CONFIG.salesWage);
+            let staffCost = (state.prodStaff * CONFIG.prodWage) + (state.salesStaff * CONFIG.salesWage);
+            let marketingBill = state.adBudget * 30; // 30 days of budget
+            let total = CONFIG.rent + staffCost + marketingBill;
+            
             state.cash -= total;
             state.day = 1;
             showToast(`BILLS: -$${total}`, "red");
@@ -355,21 +374,57 @@
                 { msg: "😐 STABLE", mult: 1.0 }
             ];
             const evt = evts[Math.floor(Math.random() * evts.length)];
+            
+            // Only blink if status changes
+            if(state.demandMult !== evt.mult) {
+                const ticker = document.getElementById('ticker');
+                ticker.classList.remove('blink-mode'); // reset
+                void ticker.offsetWidth; // trigger reflow
+                ticker.classList.add('blink-mode');
+            }
+
             state.demandMult = evt.mult;
-            document.getElementById('ticker').innerText = "Status: " + evt.msg;
+            document.getElementById('ticker').innerText = "Market: " + evt.msg;
             showToast(evt.msg, "gold");
         }
 
+        // --- UI ---
         function updateUI() {
+            // Header
             document.getElementById('cashDisplay').innerText = "$" + Math.floor(state.cash);
             document.getElementById('dayDisplay').innerText = "Day " + Math.floor(state.day);
+            
+            // Chain
             document.getElementById('fabricCount').innerText = state.fabric;
             document.getElementById('shirtCount').innerText = state.shirts;
+
+            // Supplies
+            document.getElementById('fabCostDisplay').innerText = "$" + state.fabricCost;
+            document.getElementById('buyCostDisplay').innerText = "$" + (state.fabricCost * 10);
+
+            // Price & Margin
             document.getElementById('priceDisplay').innerText = "$" + state.price;
+            let margin = state.price - state.fabricCost;
+            let mEl = document.getElementById('marginDisplay');
+            mEl.innerText = "$" + margin;
+            mEl.style.color = margin > 0 ? 'var(--green)' : 'var(--red)';
+
+            // Staff
             document.getElementById('prodCount').innerText = state.prodStaff;
+            document.getElementById('prodTotal').innerText = state.prodStaff * CONFIG.prodWage;
+            
             document.getElementById('salesCount').innerText = state.salesStaff;
-            let totalBill = CONFIG.rent + (state.prodStaff * CONFIG.prodWage) + (state.salesStaff * CONFIG.salesWage);
-            document.getElementById('billDisplay').innerText = "Exp: -$" + totalBill;
+            document.getElementById('salesTotal').innerText = state.salesStaff * CONFIG.salesWage;
+
+            // Marketing
+            document.getElementById('adBudget').innerText = state.adBudget;
+
+            // Bills Calc
+            let staffCost = (state.prodStaff * CONFIG.prodWage) + (state.salesStaff * CONFIG.salesWage);
+            let dailyBurn = (staffCost + CONFIG.rent) / 30 + state.adBudget;
+            document.getElementById('billDisplay').innerText = "Burn: -$" + Math.floor(dailyBurn) + "/day";
+
+            // Bars
             document.getElementById('demandBar').style.width = (window.currDemand || 50) + "%";
             document.getElementById('monthBar').style.width = ((state.day / 30) * 100) + "%";
         }
