@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Fashion Mogul: Performance</title>
+    <title>Fashion Mogul: Ultimate CFO</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
@@ -105,11 +105,10 @@
         .section-header { color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
         
         .line-item { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; color: #cbd5e1; }
-        .line-sub { font-size: 0.7rem; color: #64748b; }
+        .line-sub { font-size: 0.7rem; color: #64748b; display: block; margin-top: 2px; }
         .profit-row { display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 900; color: white; margin-top: 10px; padding-top: 10px; border-top: 2px dashed #475569; }
         
         .star-area { font-size: 2rem; margin: 10px 0; text-align: center; }
-        .growth-tag { font-size: 0.8rem; background: #334155; padding: 2px 8px; border-radius: 4px; margin-left: 10px; vertical-align: middle; }
         
         .bonus-box {
             background: linear-gradient(45deg, #b45309, #fbbf24); color: black;
@@ -148,7 +147,7 @@
                 <div style="font-size: 1.2rem; font-weight: 900; color: white; text-transform: uppercase;">
                     Month <span id="rptMonthNum">1</span> Report
                 </div>
-                <div style="font-size:0.8rem; color:#64748b;">PERFORMANCE REVIEW</div>
+                <div style="font-size:0.8rem; color:#64748b;">CEO FINANCIAL STATEMENT</div>
             </div>
             
             <div class="report-section">
@@ -174,8 +173,19 @@
                 </div>
 
                 <div class="line-item">
-                    <div><div>Staff Wages</div><div class="line-sub">Makers & Sellers</div></div>
-                    <span style="color:var(--red)" id="rptWagesTotal">$0</span>
+                    <div>
+                        <div>Maker Wages</div>
+                        <div class="line-sub"><span id="rptMakerQty">0</span> Makers × $100</div>
+                    </div>
+                    <span style="color:var(--red)" id="rptMakerTotal">$0</span>
+                </div>
+
+                <div class="line-item">
+                    <div>
+                        <div>Seller Wages</div>
+                        <div class="line-sub"><span id="rptSellerQty">0</span> Sellers × $120</div>
+                    </div>
+                    <span style="color:var(--red)" id="rptSellerTotal">$0</span>
                 </div>
 
                 <div class="line-item">
@@ -189,7 +199,10 @@
                 </div>
                 
                 <div class="line-item" id="rptHiringRow" style="display:none;">
-                    <div>Hiring Fees</div>
+                    <div>
+                        <div>Hiring Fees</div>
+                        <div class="line-sub" id="rptHiringDetails">0 Makers + 0 Sellers</div>
+                    </div>
                     <span style="color:var(--red)" id="rptHiringTotal">$0</span>
                 </div>
             </div>
@@ -323,6 +336,7 @@
             monthRevenue: 0, monthShirtsSold: 0,
             monthFabricCost: 0, monthFabricQty: 0,
             monthHiringCost: 0,
+            monthMakerHires: 0, monthSellerHires: 0,
             
             // Growth Tracking
             lastMonthProfit: 0
@@ -373,8 +387,17 @@
             document.getElementById('rptFabQty').innerText = state.monthFabricQty;
             document.getElementById('rptFabTotal').innerText = `-$${state.monthFabricCost}`;
 
-            let wages = (state.prodStaff * CONFIG.prodWage) + (state.salesStaff * CONFIG.salesWage);
-            document.getElementById('rptWagesTotal').innerText = `-$${wages}`;
+            // --- WAGES SEPARATION ---
+            // Calculate Maker total
+            let makerTotal = state.prodStaff * CONFIG.prodWage;
+            document.getElementById('rptMakerQty').innerText = state.prodStaff;
+            document.getElementById('rptMakerTotal').innerText = `-$${makerTotal}`;
+
+            // Calculate Seller total
+            let sellerTotal = state.salesStaff * CONFIG.salesWage;
+            document.getElementById('rptSellerQty').innerText = state.salesStaff;
+            document.getElementById('rptSellerTotal').innerText = `-$${sellerTotal}`;
+            // ------------------------
 
             let adsTotal = state.adBudget * 30;
             document.getElementById('rptAdsTotal').innerText = `-$${adsTotal}`;
@@ -382,11 +405,16 @@
             let hiringRow = document.getElementById('rptHiringRow');
             if(state.monthHiringCost > 0) {
                 hiringRow.style.display = 'flex';
+                let hiringDetails = [];
+                if(state.monthMakerHires > 0) hiringDetails.push(`${state.monthMakerHires} Makers`);
+                if(state.monthSellerHires > 0) hiringDetails.push(`${state.monthSellerHires} Sellers`);
+                document.getElementById('rptHiringDetails').innerText = hiringDetails.join(" + ");
                 document.getElementById('rptHiringTotal').innerText = `-$${state.monthHiringCost}`;
             } else hiringRow.style.display = 'none';
 
             // 2. Net Profit
-            let totalExpenses = state.monthFabricCost + wages + adsTotal + CONFIG.rent + state.monthHiringCost;
+            // Total expenses is sum of all parts
+            let totalExpenses = state.monthFabricCost + makerTotal + sellerTotal + adsTotal + CONFIG.rent + state.monthHiringCost;
             let netProfit = state.monthRevenue - totalExpenses;
             
             let pEl = document.getElementById('rptNetProfit');
@@ -410,24 +438,22 @@
                 gEl.style.color = growthPct >= 0 ? "var(--green)" : "var(--red)";
             }
 
-            // 4. Rating Logic (Growth OR High Profit)
+            // 4. Rating Logic
             let stars = "";
             let msg = "";
             let bonus = 0;
 
             if (netProfit < 0) {
-                stars = "💀"; msg = "Loss! Cut costs immediately.";
+                stars = "💀"; msg = "Loss! Cut costs.";
             } else if (state.month === 1) {
-                // Month 1 Baseline Rating
                 if (netProfit > 200) { stars = "⭐⭐⭐"; msg = "Great Start!"; bonus = Math.floor(netProfit * 0.1); }
                 else if (netProfit > 50) { stars = "⭐⭐"; msg = "Solid Start."; }
                 else { stars = "⭐"; msg = "You survived."; }
             } else {
-                // Month 2+ (Growth Based)
                 if (growthPct >= 30 || netProfit > 600) { 
                     stars = "⭐⭐⭐"; 
                     msg = growthPct >= 30 ? "Huge Growth!" : "Tycoon Status!";
-                    bonus = Math.floor(netProfit * 0.1); // 10% Bonus
+                    bonus = Math.floor(netProfit * 0.1); 
                 } 
                 else if (growthPct >= 10 || netProfit > 200) { stars = "⭐⭐"; msg = "Steady Growth."; }
                 else { stars = "⭐"; msg = "Stagnant."; }
@@ -446,8 +472,8 @@
                 bonusBox.style.display = 'none';
             }
 
-            // 6. Save Data for Next Month
-            state.pendingBills = wages + adsTotal + CONFIG.rent; // These haven't been deducted from cash yet
+            // 6. Save Data
+            state.pendingBills = makerTotal + sellerTotal + adsTotal + CONFIG.rent; 
             state.pendingBonus = bonus;
             state.lastMonthProfit = netProfit;
 
@@ -465,13 +491,12 @@
 
             state.day = 1;
             state.month++;
-            state.monthRevenue = 0;
-            state.monthShirtsSold = 0;
-            state.monthFabricCost = 0;
-            state.monthFabricQty = 0;
+            // Reset Month Stats
+            state.monthRevenue = 0; state.monthShirtsSold = 0;
+            state.monthFabricCost = 0; state.monthFabricQty = 0;
             state.monthHiringCost = 0;
-            state.pendingBills = 0;
-            state.pendingBonus = 0;
+            state.monthMakerHires = 0; state.monthSellerHires = 0;
+            state.pendingBills = 0; state.pendingBonus = 0;
             
             document.getElementById('reportModal').style.display = "none";
             state.isPaused = false;
@@ -512,7 +537,8 @@
             let cost = type === 'prod' ? 50 : 60;
             if(state.cash >= cost) {
                 state.cash -= cost; state.monthHiringCost += cost;
-                if(type === 'prod') state.prodStaff++; else state.salesStaff++;
+                if(type === 'prod') { state.prodStaff++; state.monthMakerHires++; }
+                else { state.salesStaff++; state.monthSellerHires++; }
                 showToast("HIRED!", "green");
             } else showToast(`Need $${cost}`, "red");
         }
