@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Fashion Mogul: True Cost</title>
+    <title>Fashion Mogul: Fixed</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
@@ -109,11 +109,13 @@
         .profit-row { display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 900; color: white; margin-top: 10px; padding-top: 10px; border-top: 2px dashed #475569; }
         
         .star-area { font-size: 2rem; margin: 10px 0; text-align: center; }
+        
         .bonus-box {
             background: linear-gradient(45deg, #b45309, #fbbf24); color: black;
             padding: 10px; border-radius: 8px; font-weight: bold; text-align: center;
             margin-bottom: 10px; display: none; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
         }
+
         .next-btn {
             background: var(--green); color: white; border: none; width: 100%; padding: 15px;
             border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; margin-top: auto;
@@ -183,7 +185,7 @@
                 </div>
 
                 <div class="line-item">
-                    <div><div>Marketing</div><div class="line-sub">Daily Ad Spend</div></div>
+                    <div><div>Marketing</div><div class="line-sub">Actual Daily Spend</div></div>
                     <span style="color:var(--red)" id="rptAdsTotal">$0</span>
                 </div>
 
@@ -318,7 +320,7 @@
             fabricCost: 5, day: 1, month: 1,
             demandMult: 1, isSewing: false, isPaused: false,
             
-            // ACCRUED COSTS (The "Pro-Rata" Buckets)
+            // ACCRUED COSTS
             accMakerWages: 0,
             accSellerWages: 0,
             accAdCost: 0,
@@ -336,12 +338,10 @@
         setInterval(() => {
             if (state.isPaused) return;
 
-            let tickRate = 0.04; // How much of a day passes per tick
+            let tickRate = 0.04; 
             state.day += tickRate; 
             
-            // --- DAILY ACCRUAL LOGIC (The "Pro-Rata" Math) ---
-            // Calculate daily cost (Monthly Rate / 30)
-            // Multiply by tickRate to get cost for this specific moment
+            // ACCRUALS (PRO RATA)
             let dailyMakerCost = (state.prodStaff * CONFIG.prodWage) / 30;
             state.accMakerWages += dailyMakerCost * tickRate;
 
@@ -349,8 +349,7 @@
             state.accSellerWages += dailySellerCost * tickRate;
 
             state.accAdCost += state.adBudget * tickRate;
-            // --------------------------------------------------
-
+            
             if (state.day > 30) showMonthlyReport();
 
             if (Math.random() < 0.01) updateFabricCost();
@@ -366,6 +365,7 @@
             updateUI();
         }, 100);
 
+        // Events
         setInterval(() => {
             if (!state.isPaused && state.day > 3 && Math.random() > 0.8) triggerEvent();
         }, 8000);
@@ -388,11 +388,10 @@
             document.getElementById('rptRevTotal').innerText = `+$${state.monthRevenue}`;
 
             // 2. EXPENSES
-            // Fabric
             document.getElementById('rptFabQty').innerText = state.monthFabricQty;
             document.getElementById('rptFabTotal').innerText = `-$${state.monthFabricCost}`;
 
-            // Accrued Wages (Rounded)
+            // Actual Accruals
             let finalMakerWages = Math.floor(state.accMakerWages);
             let finalSellerWages = Math.floor(state.accSellerWages);
             let finalAdCost = Math.floor(state.accAdCost);
@@ -400,8 +399,6 @@
             document.getElementById('rptMakerTotal').innerText = `-$${finalMakerWages}`;
             document.getElementById('rptSellerTotal').innerText = `-$${finalSellerWages}`;
             document.getElementById('rptAdsTotal').innerText = `-$${finalAdCost}`;
-            
-            // Rent
             document.getElementById('rptRent').innerText = `-$${CONFIG.rent}`;
 
             // Hiring Fees
@@ -416,7 +413,6 @@
             } else hiringRow.style.display = 'none';
 
             // 3. NET PROFIT
-            // Note: Hiring cost is already deducted from cash, but for the "Report Card" P&L, we sum it all up
             let totalExpenses = state.monthFabricCost + finalMakerWages + finalSellerWages + finalAdCost + CONFIG.rent + state.monthHiringCost;
             let netProfit = Math.floor(state.monthRevenue - totalExpenses);
             
@@ -460,8 +456,6 @@
             } else bonusBox.style.display = 'none';
 
             // Store Pending Bills (Wages + Rent + Ads)
-            // Note: Fabric and Hiring are "Paid as you go" (already deducted from cash), 
-            // so we only deduct the accrued items now.
             state.pendingBills = finalMakerWages + finalSellerWages + finalAdCost + CONFIG.rent; 
             state.pendingBonus = bonus;
             state.lastMonthProfit = netProfit;
@@ -479,11 +473,10 @@
             }
 
             state.day = 1; state.month++;
-            // Reset Month Stats
+            // Reset Stats
             state.monthRevenue = 0; state.monthShirtsSold = 0;
             state.monthFabricCost = 0; state.monthFabricQty = 0;
             state.monthHiringCost = 0; state.monthMakerHires = 0; state.monthSellerHires = 0;
-            
             // Reset Accruals
             state.accMakerWages = 0; state.accSellerWages = 0; state.accAdCost = 0;
             
@@ -569,6 +562,13 @@
             showToast(evt.msg, "gold");
         }
 
+        function triggerConfetti() {
+            const c = document.createElement('div');
+            c.innerText = "🎉 💸 🚀 💸 🎉";
+            c.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); fontSize:3rem; zIndex:400; animation:flash 1s infinite;';
+            document.body.appendChild(c); setTimeout(() => c.remove(), 2000);
+        }
+
         function updateUI() {
             document.getElementById('cashDisplay').innerText = "$" + Math.floor(state.cash);
             document.getElementById('dayDisplay').innerText = "Day " + Math.floor(state.day);
@@ -586,7 +586,7 @@
             document.getElementById('salesCount').innerText = state.salesStaff;
             document.getElementById('adBudget').innerText = state.adBudget;
 
-            // Updated Burn Calc: Use CURRENT staff * wage + Rent + Ads
+            // Updated Burn Calc: Current staff * wage + Rent + Ads
             let currentStaffCost = (state.prodStaff * CONFIG.prodWage) + (state.salesStaff * CONFIG.salesWage);
             let currentAdCost = state.adBudget * 30;
             document.getElementById('billDisplay').innerText = "Mo. Burn: -$" + (currentStaffCost + CONFIG.rent + currentAdCost);
