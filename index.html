@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Fashion Mogul: Fixed</title>
+    <title>Fashion Mogul: Optimized</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
@@ -129,6 +129,7 @@
             opacity: 0; pointer-events: none; z-index: 300; border: 2px solid var(--gold);
         }
         
+        /* Animation */
         @keyframes flash {
             0%, 100% { background: transparent; color: #64748b; }
             50% { background: var(--gold); color: black; transform: scale(1.02); }
@@ -195,7 +196,10 @@
                 </div>
                 
                 <div class="line-item" id="rptHiringRow" style="display:none;">
-                    <div><div>Hiring Fees</div><div class="line-sub" id="rptHiringDetails">--</div></div>
+                    <div>
+                        <div>Hiring Fees</div>
+                        <div class="line-sub" id="rptHiringDetails">0 Makers + 0 Sellers</div>
+                    </div>
                     <span style="color:var(--red)" id="rptHiringTotal">$0</span>
                 </div>
             </div>
@@ -209,7 +213,12 @@
             </div>
 
             <div class="star-area" id="rptStars">⭐⭐⭐</div>
-            <div id="bonusBox" class="bonus-box">🎉 BONUS! +$<span id="bonusAmount">0</span></div>
+            
+            <div id="bonusBox" class="bonus-box">
+                🎉 PERFORMANCE BONUS!<br>
+                <span style="font-size: 1.2rem;">+$<span id="bonusAmount">0</span> Added to Cash</span>
+            </div>
+
             <div style="text-align:center; color:#fbbf24; font-weight:bold; margin-bottom:10px;" id="rptMsg">Excellent!</div>
 
             <button class="next-btn" onclick="startNextMonth()">Start Next Month</button>
@@ -311,6 +320,28 @@
     </div>
 
     <script>
+        // --- SMART UPDATER (Performance Fix) ---
+        // This stops the browser from redrawing unless the number actually changes.
+        function smartText(id, newValue) {
+            const el = document.getElementById(id);
+            if (el && el.innerText !== String(newValue)) {
+                el.innerText = newValue;
+            }
+        }
+
+        function smartStyle(id, property, newValue) {
+            const el = document.getElementById(id);
+            if (el && el.style[property] !== newValue) {
+                el.style[property] = newValue;
+            }
+        }
+        function smartColor(id, color) {
+            const el = document.getElementById(id);
+            if (el && el.style.color !== color) {
+                el.style.color = color;
+            }
+        }
+
         // --- CONFIG ---
         const CONFIG = { prodWage: 100, salesWage: 120, rent: 50 };
         
@@ -321,15 +352,12 @@
             demandMult: 1, isSewing: false, isPaused: false,
             
             // ACCRUED COSTS
-            accMakerWages: 0,
-            accSellerWages: 0,
-            accAdCost: 0,
+            accMakerWages: 0, accSellerWages: 0, accAdCost: 0,
             
             // Stats
             monthRevenue: 0, monthShirtsSold: 0,
             monthFabricCost: 0, monthFabricQty: 0,
-            monthHiringCost: 0,
-            monthMakerHires: 0, monthSellerHires: 0,
+            monthHiringCost: 0, monthMakerHires: 0, monthSellerHires: 0,
             
             lastMonthProfit: 0
         };
@@ -342,15 +370,11 @@
             state.day += tickRate; 
             
             // ACCRUALS (PRO RATA)
-            let dailyMakerCost = (state.prodStaff * CONFIG.prodWage) / 30;
-            state.accMakerWages += dailyMakerCost * tickRate;
-
-            let dailySellerCost = (state.salesStaff * CONFIG.salesWage) / 30;
-            state.accSellerWages += dailySellerCost * tickRate;
-
+            state.accMakerWages += ((state.prodStaff * CONFIG.prodWage) / 30) * tickRate;
+            state.accSellerWages += ((state.salesStaff * CONFIG.salesWage) / 30) * tickRate;
             state.accAdCost += state.adBudget * tickRate;
             
-            if (state.day > 30) showMonthlyReport();
+            if (state.day >= 30) showMonthlyReport();
 
             if (Math.random() < 0.01) updateFabricCost();
 
@@ -362,10 +386,10 @@
             }
 
             attemptSale();
-            updateUI();
+            updateUI(); // Optimized UI update
         }, 100);
 
-        // Events
+        // Random Events
         setInterval(() => {
             if (!state.isPaused && state.day > 3 && Math.random() > 0.8) triggerEvent();
         }, 8000);
@@ -374,32 +398,32 @@
 
         function togglePause() {
             state.isPaused = !state.isPaused;
-            document.getElementById('pauseBtn').innerText = state.isPaused ? "▶" : "⏸";
+            smartText('pauseBtn', state.isPaused ? "▶" : "⏸");
         }
 
         function showMonthlyReport() {
             state.isPaused = true;
-            document.getElementById('rptMonthNum').innerText = state.month;
+            smartText('rptMonthNum', state.month);
 
             // 1. REVENUE
             let avgPrice = state.monthShirtsSold > 0 ? (state.monthRevenue / state.monthShirtsSold).toFixed(2) : "0.00";
-            document.getElementById('rptSoldQty').innerText = state.monthShirtsSold;
-            document.getElementById('rptAvgPrice').innerText = avgPrice;
-            document.getElementById('rptRevTotal').innerText = `+$${state.monthRevenue}`;
+            smartText('rptSoldQty', state.monthShirtsSold);
+            smartText('rptAvgPrice', avgPrice);
+            smartText('rptRevTotal', `+$${state.monthRevenue}`);
 
             // 2. EXPENSES
-            document.getElementById('rptFabQty').innerText = state.monthFabricQty;
-            document.getElementById('rptFabTotal').innerText = `-$${state.monthFabricCost}`;
+            smartText('rptFabQty', state.monthFabricQty);
+            smartText('rptFabTotal', `-$${state.monthFabricCost}`);
 
-            // Actual Accruals
+            // Accrued Costs
             let finalMakerWages = Math.floor(state.accMakerWages);
             let finalSellerWages = Math.floor(state.accSellerWages);
             let finalAdCost = Math.floor(state.accAdCost);
 
-            document.getElementById('rptMakerTotal').innerText = `-$${finalMakerWages}`;
-            document.getElementById('rptSellerTotal').innerText = `-$${finalSellerWages}`;
-            document.getElementById('rptAdsTotal').innerText = `-$${finalAdCost}`;
-            document.getElementById('rptRent').innerText = `-$${CONFIG.rent}`;
+            smartText('rptMakerTotal', `-$${finalMakerWages}`);
+            smartText('rptSellerTotal', `-$${finalSellerWages}`);
+            smartText('rptAdsTotal', `-$${finalAdCost}`);
+            smartText('rptRent', `-$${CONFIG.rent}`);
 
             // Hiring Fees
             let hiringRow = document.getElementById('rptHiringRow');
@@ -408,30 +432,32 @@
                 let hiringDetails = [];
                 if(state.monthMakerHires > 0) hiringDetails.push(`${state.monthMakerHires} Makers`);
                 if(state.monthSellerHires > 0) hiringDetails.push(`${state.monthSellerHires} Sellers`);
-                document.getElementById('rptHiringDetails').innerText = hiringDetails.join(" + ");
-                document.getElementById('rptHiringTotal').innerText = `-$${state.monthHiringCost}`;
+                smartText('rptHiringDetails', hiringDetails.join(" + "));
+                smartText('rptHiringTotal', `-$${state.monthHiringCost}`);
             } else hiringRow.style.display = 'none';
 
             // 3. NET PROFIT
             let totalExpenses = state.monthFabricCost + finalMakerWages + finalSellerWages + finalAdCost + CONFIG.rent + state.monthHiringCost;
             let netProfit = Math.floor(state.monthRevenue - totalExpenses);
             
-            let pEl = document.getElementById('rptNetProfit');
-            pEl.innerText = (netProfit >= 0 ? "+" : "") + `$${netProfit}`;
-            pEl.style.color = netProfit >= 0 ? "var(--green)" : "var(--red)";
+            smartText('rptNetProfit', (netProfit >= 0 ? "+" : "") + `$${netProfit}`);
+            smartColor('rptNetProfit', netProfit >= 0 ? "var(--green)" : "var(--red)");
 
             // 4. GROWTH & RATING
             let growthPct = 0;
             if (state.month > 1 && Math.abs(state.lastMonthProfit) > 0) {
                 growthPct = ((netProfit - state.lastMonthProfit) / Math.abs(state.lastMonthProfit)) * 100;
-            } else if (state.month > 1 && state.lastMonthProfit === 0) growthPct = netProfit > 0 ? 100 : 0;
+            } else if (state.month > 1 && state.lastMonthProfit === 0) {
+                growthPct = netProfit > 0 ? 100 : 0;
+            }
             
-            let gEl = document.getElementById('rptGrowth');
-            if (state.month === 1) { document.getElementById('growthRow').style.display = 'none'; } 
-            else {
-                document.getElementById('growthRow').style.display = 'block';
-                gEl.innerText = (growthPct >= 0 ? "+" : "") + growthPct.toFixed(0) + "%";
-                gEl.style.color = growthPct >= 0 ? "var(--green)" : "var(--red)";
+            let growthRow = document.getElementById('growthRow');
+            if (state.month === 1) { 
+                growthRow.style.display = 'none'; 
+            } else {
+                growthRow.style.display = 'block';
+                smartText('rptGrowth', (growthPct >= 0 ? "+" : "") + growthPct.toFixed(0) + "%");
+                smartColor('rptGrowth', growthPct >= 0 ? "var(--green)" : "var(--red)");
             }
 
             let stars = ""; let msg = ""; let bonus = 0;
@@ -446,16 +472,17 @@
                 else { stars = "⭐"; msg = "Stagnant."; }
             }
 
-            document.getElementById('rptStars').innerText = stars;
-            document.getElementById('rptMsg').innerText = msg;
+            smartText('rptStars', stars);
+            smartText('rptMsg', msg);
 
             // Bonus
             let bonusBox = document.getElementById('bonusBox');
             if (bonus > 0) {
-                bonusBox.style.display = 'block'; document.getElementById('bonusAmount').innerText = bonus;
+                bonusBox.style.display = 'block'; 
+                smartText('bonusAmount', bonus);
             } else bonusBox.style.display = 'none';
 
-            // Store Pending Bills (Wages + Rent + Ads)
+            // Store Pending Bills
             state.pendingBills = finalMakerWages + finalSellerWages + finalAdCost + CONFIG.rent; 
             state.pendingBonus = bonus;
             state.lastMonthProfit = netProfit;
@@ -558,47 +585,43 @@
                 ticker.style.animation = 'none'; ticker.offsetHeight; ticker.style.animation = 'flash 0.5s 3';
                 ticker.style.color = '#fbbf24';
             }
-            state.demandMult = evt.mult; document.getElementById('ticker').innerText = "Market: " + evt.msg;
+            state.demandMult = evt.mult; 
+            smartText('ticker', "Market: " + evt.msg);
             showToast(evt.msg, "gold");
         }
 
-        function triggerConfetti() {
-            const c = document.createElement('div');
-            c.innerText = "🎉 💸 🚀 💸 🎉";
-            c.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); fontSize:3rem; zIndex:400; animation:flash 1s infinite;';
-            document.body.appendChild(c); setTimeout(() => c.remove(), 2000);
-        }
-
+        // --- OPTIMIZED UI RENDERER ---
         function updateUI() {
-            document.getElementById('cashDisplay').innerText = "$" + Math.floor(state.cash);
-            document.getElementById('dayDisplay').innerText = "Day " + Math.floor(state.day);
-            document.getElementById('fabricCount').innerText = state.fabric;
-            document.getElementById('shirtCount').innerText = state.shirts;
-            document.getElementById('fabCostDisplay').innerText = "$" + state.fabricCost;
-            document.getElementById('buyCostDisplay').innerText = "$" + (state.fabricCost * 10);
-            document.getElementById('priceDisplay').innerText = "$" + state.price;
+            // Using smartText avoids slowing down the computer
+            smartText('cashDisplay', "$" + Math.floor(state.cash));
+            smartText('dayDisplay', "Day " + Math.floor(state.day));
+            smartText('fabricCount', state.fabric);
+            smartText('shirtCount', state.shirts);
+            smartText('fabCostDisplay', "$" + state.fabricCost);
+            smartText('buyCostDisplay', "$" + (state.fabricCost * 10));
+            smartText('priceDisplay', "$" + state.price);
             
             let margin = state.price - state.fabricCost;
-            let mEl = document.getElementById('marginDisplay');
-            mEl.innerText = "$" + margin; mEl.style.color = margin > 0 ? 'var(--green)' : 'var(--red)';
+            smartText('marginDisplay', "$" + margin);
+            smartColor('marginDisplay', margin > 0 ? 'var(--green)' : 'var(--red)');
 
-            document.getElementById('prodCount').innerText = state.prodStaff;
-            document.getElementById('salesCount').innerText = state.salesStaff;
-            document.getElementById('adBudget').innerText = state.adBudget;
+            smartText('prodCount', state.prodStaff);
+            smartText('salesCount', state.salesStaff);
+            smartText('adBudget', state.adBudget);
 
-            // Updated Burn Calc: Current staff * wage + Rent + Ads
+            // Forecasted Burn (Current Staff * Wage + Rent + Ads)
             let currentStaffCost = (state.prodStaff * CONFIG.prodWage) + (state.salesStaff * CONFIG.salesWage);
             let currentAdCost = state.adBudget * 30;
-            document.getElementById('billDisplay').innerText = "Mo. Burn: -$" + (currentStaffCost + CONFIG.rent + currentAdCost);
+            smartText('billDisplay', "Mo. Burn: -$" + (currentStaffCost + CONFIG.rent + currentAdCost));
 
-            document.getElementById('demandBar').style.width = (window.currDemand || 50) + "%";
-            document.getElementById('monthBar').style.width = ((state.day / 30) * 100) + "%";
+            smartStyle('demandBar', 'width', (window.currDemand || 50) + "%");
+            smartStyle('monthBar', 'width', ((state.day / 30) * 100) + "%");
 
             let level = "LEVEL 1: GARAGE";
             if(state.cash > 5000) level = "LEVEL 4: EMPIRE 👑";
             else if(state.cash > 1500) level = "LEVEL 3: BRAND 🏭";
             else if(state.cash > 500) level = "LEVEL 2: BOUTIQUE 🏪";
-            document.getElementById('levelBadge').innerText = level;
+            smartText('levelBadge', level);
         }
 
         function showToast(msg, color) {
