@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Fashion Mogul: Executive</title>
+    <title>Fashion Mogul: Executive P&L</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
@@ -85,19 +85,30 @@
         .goal-tracker { text-align: center; font-size: 0.8rem; color: var(--gold); font-weight: bold; margin-top: 5px; background: rgba(251, 191, 36, 0.1); padding: 4px; border-radius: 4px; }
         #ticker { text-align: center; font-size: 0.75rem; color: #64748b; margin-top: 4px; font-weight: bold; padding: 5px; border-radius: 4px; }
 
-        /* --- MODAL (FULL P&L COMPARISON) --- */
+        /* --- MODAL (MoM P&L COMPARISON) --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: none; justify-content: center; align-items: center; padding: 10px; }
-        .modal-card { background: #0f172a; width: 100%; max-width: 600px; border-radius: 15px; padding: 15px; border: 1px solid #334155; height: 95vh; display: flex; flex-direction: column; }
-        .modal-header { text-align: center; margin-bottom: 10px; }
+        .modal-card { background: #0f172a; width: 100%; max-width: 800px; border-radius: 15px; padding: 15px; border: 1px solid #334155; height: 95vh; display: flex; flex-direction: column; }
+        .modal-header { text-align: center; margin-bottom: 10px; flex-shrink: 0; }
         
         /* Master P&L Table */
-        .table-container { flex: 1; overflow: auto; background: #1e293b; border-radius: 8px; border: 1px solid #334155; margin-bottom: 10px; }
-        .history-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; white-space: nowrap; }
-        .history-table th { background: #0f172a; color: #94a3b8; padding: 8px 10px; text-align: right; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #334155; }
-        .history-table td { padding: 8px 10px; border-bottom: 1px solid #334155; text-align: right; color: white; }
-        /* Make Month Column Sticky Left */
-        .history-table th:first-child, .history-table td:first-child { position: sticky; left: 0; background: #0f172a; text-align: center; z-index: 20; border-right: 1px solid #334155; }
-        .history-table tr:last-child td { font-weight: bold; background: rgba(255,255,255,0.05); }
+        .table-container { flex: 1; overflow-x: auto; overflow-y: auto; background: #1e293b; border-radius: 8px; border: 1px solid #334155; margin-bottom: 10px; scroll-behavior: smooth; }
+        .pnl-table { width: max-content; border-collapse: collapse; font-size: 0.8rem; text-align: right; }
+        
+        .pnl-table th { background: #0f172a; color: #94a3b8; padding: 10px 12px; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #334155; text-transform: uppercase; letter-spacing: 1px; }
+        .pnl-table td { padding: 8px 12px; border-bottom: 1px solid #334155; color: white; }
+        
+        /* Sticky First Column for Row Labels */
+        .row-label { position: sticky; left: 0; background: #1e293b; text-align: left; z-index: 20; border-right: 2px solid #334155; font-weight: bold; color: #cbd5e1 !important; }
+        .pnl-table th:first-child { position: sticky; left: 0; z-index: 30; border-right: 2px solid #334155; text-align: left; }
+        
+        /* P&L Styling */
+        .subtotal td { background: rgba(255,255,255,0.03); border-top: 1px dashed #475569; font-weight: bold; }
+        .subtotal .row-label { background: #162032; }
+        .total td { background: rgba(255,255,255,0.08); border-top: 2px solid #94a3b8; font-size: 0.9rem; font-weight: 900; }
+        .total .row-label { background: #111827; color: white !important; }
+        
+        .text-green { color: var(--green) !important; }
+        .text-red { color: var(--red) !important; }
 
         .next-btn { background: var(--green); color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; flex-shrink: 0; }
         #toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); color: var(--gold); padding: 15px 30px; border-radius: 50px; font-weight: bold; font-size: 1.2rem; opacity: 0; pointer-events: none; z-index: 300; border: 2px solid var(--gold); }
@@ -148,28 +159,16 @@
         <div class="modal-card">
             <div class="modal-header">
                 <div style="font-size: 1.2rem; font-weight: 900; color: white; text-transform: uppercase;">
-                    Master P&L Ledger
+                    Month-over-Month P&L
                 </div>
                 <div style="font-size:0.85rem; color:var(--gold); font-weight: bold; margin-top:5px;" id="rptGoalStatus">Goal Progress: 0/3 Months</div>
             </div>
             
-            <div class="table-container">
-                <table class="history-table" id="historyTable">
-                    <thead>
-                        <tr>
-                            <th>Mo</th>
-                            <th>💰 Rev</th>
-                            <th>🧵 Fab</th>
-                            <th>🔨 Mkr</th>
-                            <th>🤝 Sel</th>
-                            <th>📢 Ads</th>
-                            <th>🏢 Rnt+</th>
-                            <th>💵 Net</th>
-                            <th>📈 S%</th>
-                            <th>📈 P%</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyBody">
+            <div class="table-container" id="tableContainer">
+                <table class="pnl-table">
+                    <thead id="pnlHead">
+                        </thead>
+                    <tbody id="pnlBody">
                         </tbody>
                 </table>
             </div>
@@ -296,7 +295,7 @@
         let state = {
             ruleEconomy: 'live',
             ruleFabric: 'live',
-            ruleGoalType: 'sales', // 'sales' or 'profit'
+            ruleGoalType: 'sales', 
             ruleGoalTargetPct: 10,
             ruleGoalTargetMonths: 3,
 
@@ -312,7 +311,6 @@
             goalStreak: 0
         };
 
-        // --- SETUP FUNCTION ---
         function startGame() {
             state.ruleEconomy = document.getElementById('setEconomy').value;
             let fabVal = document.getElementById('setFabric').value;
@@ -340,7 +338,8 @@
         setInterval(() => {
             if (state.isPaused) return;
 
-            let tickRate = 0.04; 
+            // FASTER SPEED: Increased tickRate by 30% (from 0.04 to 0.052)
+            let tickRate = 0.052; 
             state.day += tickRate; 
             
             // Accruals
@@ -388,8 +387,9 @@
             let adCost = Math.floor(state.accAdCost);
             let rentHire = CONFIG.rent + state.monthHiringCost;
             
-            let totalExp = state.monthFabricCost + mkrCost + selCost + adCost + rentHire;
-            let netProfit = Math.floor(state.monthRevenue - totalExp);
+            let totalOpex = mkrCost + selCost + adCost + rentHire;
+            let grossProfit = state.monthRevenue - state.monthFabricCost;
+            let netProfit = grossProfit - totalOpex;
 
             // CALCULATE GROWTHS
             let salesGrowthPct = 0;
@@ -402,7 +402,7 @@
                 salesGrowthPct = ((state.monthRevenue - lastSales) / lastSales) * 100;
             } else if (state.month > 1 && lastSales === 0) salesGrowthPct = state.monthRevenue > 0 ? 100 : 0;
 
-            // Profit Math (abs value of denominator handles moving from negative to less negative correctly)
+            // Profit Math
             if (state.month > 1 && Math.abs(lastProfit) > 0) {
                 profitGrowthPct = ((netProfit - lastProfit) / Math.abs(lastProfit)) * 100;
             } else if (state.month > 1 && lastProfit === 0) profitGrowthPct = netProfit > 0 ? 100 : 0;
@@ -411,75 +411,70 @@
             let goalValueToCheck = state.ruleGoalType === 'sales' ? salesGrowthPct : profitGrowthPct;
             if (state.month > 1) {
                 if (goalValueToCheck >= state.ruleGoalTargetPct) state.goalStreak++;
-                else state.goalStreak = 0;
+                else state.goalStreak = 0; // Reset streak if missed
             }
 
-            // SAVE TO HISTORY (FULL P&L)
+            // SAVE TO HISTORY P&L
             state.history.push({
                 month: state.month,
                 revenue: state.monthRevenue,
                 fab: state.monthFabricCost,
+                gross: grossProfit,
                 maker: mkrCost,
                 seller: selCost,
                 ads: adCost,
                 rentHire: rentHire,
+                opex: totalOpex,
                 profit: netProfit,
                 salesGrowth: state.month === 1 ? "-" : salesGrowthPct.toFixed(0) + "%",
                 profitGrowth: state.month === 1 ? "-" : profitGrowthPct.toFixed(0) + "%"
             });
 
-            // RENDER MASTER P&L TABLE
-            let tbody = document.getElementById('historyBody');
-            tbody.innerHTML = "";
-            state.history.forEach(r => {
-                let pColor = r.profit >= 0 ? 'var(--green)' : 'var(--red)';
-                
-                // Highlight the metric they selected as their goal
-                let sColor = 'white'; let pGColor = 'white';
-                if(r.salesGrowth !== '-') {
-                    sColor = parseInt(r.salesGrowth) >= 0 ? 'white' : 'var(--red)';
-                    if(state.ruleGoalType === 'sales' && parseInt(r.salesGrowth) >= state.ruleGoalTargetPct) sColor = 'var(--green)';
-                }
-                if(r.profitGrowth !== '-') {
-                    pGColor = parseInt(r.profitGrowth) >= 0 ? 'white' : 'var(--red)';
-                    if(state.ruleGoalType === 'profit' && parseInt(r.profitGrowth) >= state.ruleGoalTargetPct) pGColor = 'var(--green)';
-                }
+            // RENDER TRANSPOSED P&L (Columns = Months, Rows = Items)
+            let headHtml = "<tr><th>Line Item</th>" + state.history.map(h => `<th>Mo ${h.month}</th>`).join('') + "</tr>";
+            document.getElementById('pnlHead').innerHTML = headHtml;
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${r.month}</td>
-                        <td style="color:var(--green)">$${r.revenue}</td>
-                        <td style="color:var(--red)">$${r.fab}</td>
-                        <td style="color:var(--red)">$${r.maker}</td>
-                        <td style="color:var(--red)">$${r.seller}</td>
-                        <td style="color:var(--red)">$${r.ads}</td>
-                        <td style="color:var(--red)">$${r.rentHire}</td>
-                        <td style="color:${pColor}; font-weight:bold;">$${r.profit}</td>
-                        <td style="color:${sColor}">${r.salesGrowth}</td>
-                        <td style="color:${pGColor}">${r.profitGrowth}</td>
-                    </tr>
-                `;
-            });
+            let tbody = "";
+            tbody += `<tr><td class="row-label">💰 Revenue</td>` + state.history.map(h => `<td class="text-green">$${h.revenue}</td>`).join('') + `</tr>`;
+            tbody += `<tr><td class="row-label">🧵 Fabric (COGS)</td>` + state.history.map(h => `<td class="text-red">-$${h.fab}</td>`).join('') + `</tr>`;
+            tbody += `<tr class="subtotal"><td class="row-label">Gross Profit</td>` + state.history.map(h => `<td>$${h.gross}</td>`).join('') + `</tr>`;
+            
+            tbody += `<tr><td class="row-label">🔨 Maker Wages</td>` + state.history.map(h => `<td class="text-red">-$${h.maker}</td>`).join('') + `</tr>`;
+            tbody += `<tr><td class="row-label">🤝 Seller Wages</td>` + state.history.map(h => `<td class="text-red">-$${h.seller}</td>`).join('') + `</tr>`;
+            tbody += `<tr><td class="row-label">📢 Marketing Ads</td>` + state.history.map(h => `<td class="text-red">-$${h.ads}</td>`).join('') + `</tr>`;
+            tbody += `<tr><td class="row-label">🏢 Rent & Hiring</td>` + state.history.map(h => `<td class="text-red">-$${h.rentHire}</td>`).join('') + `</tr>`;
+            
+            tbody += `<tr class="subtotal"><td class="row-label">Total OpEx</td>` + state.history.map(h => `<td>-$${h.opex}</td>`).join('') + `</tr>`;
+            
+            tbody += `<tr class="total"><td class="row-label">💵 Net Profit</td>` + state.history.map(h => {
+                let c = h.profit >= 0 ? 'var(--green)' : 'var(--red)';
+                return `<td style="color:${c};">$${h.profit}</td>`;
+            }).join('') + `</tr>`;
 
-            // Scroll right/bottom
-            let tCont = document.getElementById('historyTable').parentElement;
-            tCont.scrollTop = tCont.scrollHeight;
-            tCont.scrollLeft = 0; // reset horizontal scroll
+            tbody += `<tr><td class="row-label">📈 Sales Growth</td>` + state.history.map(h => `<td>${h.salesGrowth}</td>`).join('') + `</tr>`;
+            tbody += `<tr><td class="row-label">📈 Profit Growth</td>` + state.history.map(h => `<td>${h.profitGrowth}</td>`).join('') + `</tr>`;
 
+            document.getElementById('pnlBody').innerHTML = tbody;
+
+            // Scroll container to the extreme right to show newest month
+            setTimeout(() => {
+                document.getElementById('tableContainer').scrollLeft = 9999;
+            }, 50);
+
+            // GOAL & MESSAGING
             let goalLabel = state.ruleGoalType === 'sales' ? 'Sales' : 'Profit';
             smartText('rptGoalStatus', `Goal: ${state.goalStreak}/${state.ruleGoalTargetMonths} Mos. @ ${state.ruleGoalTargetPct}% ${goalLabel} Growth`);
 
-            // WIN / LOSS
             let btn = document.getElementById('modalBtn');
             let msg = document.getElementById('rptMsg');
 
             if (state.goalStreak >= state.ruleGoalTargetMonths) {
-                msg.innerText = "🏆 YOU WIN! Goal Achieved! 🏆";
+                msg.innerText = "🏆 YOU WIN! Board is thrilled! 🏆";
                 msg.style.color = "var(--green)";
                 btn.innerText = "Play Again";
                 btn.onclick = () => location.reload();
             } else if ((state.cash + netProfit) < 0) {
-                msg.innerText = "💀 BANKRUPT! Game Over.";
+                msg.innerText = "💀 BANKRUPT! Company closed.";
                 msg.style.color = "var(--red)";
                 btn.innerText = "Try Again";
                 btn.onclick = () => location.reload();
