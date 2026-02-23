@@ -181,7 +181,7 @@
     <div class="header">
         <div>
             <div style="font-size: 0.65rem; color:#94a3b8; font-weight:bold; letter-spacing:1px;">CASH ON HAND</div>
-            <div class="cash-box" id="cashDisplay">$100</div>
+            <div class="cash-box" id="cashDisplay">$500</div>
         </div>
         <div style="display:flex; align-items:center;">
             <div class="info-box">
@@ -289,7 +289,6 @@
         }
 
         // --- CONFIG & STATE ---
-        // Maker = $60, Seller = $120
         const CONFIG = { prodWage: 60, salesWage: 120, rent: 50 };
         
         let state = {
@@ -299,7 +298,8 @@
             ruleGoalTargetPct: 10,
             ruleGoalTargetMonths: 3,
 
-            cash: 100, fabric: 5, shirts: 0, price: 25,
+            // STARTING CASH IS NOW 500
+            cash: 500, fabric: 5, shirts: 0, price: 25,
             prodStaff: 0, salesStaff: 0, adBudget: 0,
             fabricCost: 5, day: 1, month: 1,
             demandMult: 1, isSewing: false, isPaused: true, 
@@ -338,7 +338,6 @@
         setInterval(() => {
             if (state.isPaused) return;
 
-            // FASTER SPEED: Increased tickRate by 30% (from 0.04 to 0.052)
             let tickRate = 0.052; 
             state.day += tickRate; 
             
@@ -430,7 +429,7 @@
                 profitGrowth: state.month === 1 ? "-" : profitGrowthPct.toFixed(0) + "%"
             });
 
-            // RENDER TRANSPOSED P&L (Columns = Months, Rows = Items)
+            // RENDER TRANSPOSED P&L
             let headHtml = "<tr><th>Line Item</th>" + state.history.map(h => `<th>Mo ${h.month}</th>`).join('') + "</tr>";
             document.getElementById('pnlHead').innerHTML = headHtml;
 
@@ -451,8 +450,17 @@
                 return `<td style="color:${c};">$${h.profit}</td>`;
             }).join('') + `</tr>`;
 
-            tbody += `<tr><td class="row-label">📈 Sales Growth</td>` + state.history.map(h => `<td>${h.salesGrowth}</td>`).join('') + `</tr>`;
-            tbody += `<tr><td class="row-label">📈 Profit Growth</td>` + state.history.map(h => `<td>${h.profitGrowth}</td>`).join('') + `</tr>`;
+            tbody += `<tr><td class="row-label">📈 Sales Growth</td>` + state.history.map(h => {
+                let sColor = h.salesGrowth === '-' ? 'white' : (parseInt(h.salesGrowth) >= 0 ? 'white' : 'var(--red)');
+                if(state.ruleGoalType === 'sales' && h.salesGrowth !== '-' && parseInt(h.salesGrowth) >= state.ruleGoalTargetPct) sColor = 'var(--green)';
+                return `<td style="color:${sColor}">${h.salesGrowth}</td>`;
+            }).join('') + `</tr>`;
+            
+            tbody += `<tr><td class="row-label">📈 Profit Growth</td>` + state.history.map(h => {
+                let pGColor = h.profitGrowth === '-' ? 'white' : (parseInt(h.profitGrowth) >= 0 ? 'white' : 'var(--red)');
+                if(state.ruleGoalType === 'profit' && h.profitGrowth !== '-' && parseInt(h.profitGrowth) >= state.ruleGoalTargetPct) pGColor = 'var(--green)';
+                return `<td style="color:${pGColor}">${h.profitGrowth}</td>`;
+            }).join('') + `</tr>`;
 
             document.getElementById('pnlBody').innerHTML = tbody;
 
